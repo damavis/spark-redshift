@@ -181,10 +181,10 @@ class RedshiftSourceSuite
         |UNLOAD \('SELECT "testbyte", "testbool" FROM
         |  \(select testbyte, testbool
         |    from test_table
-        |    where teststring = \\'\\\\\\\\Unicode\\'\\'s樂趣\\'\) '\)
+        |    where teststring = ''\\\\\\\\\\\\\\\\Unicode\\\\\\\\'\\\\\\\\'s樂趣''\) '\)
       """.stripMargin.lines.map(_.trim).mkString(" ").trim.r
     val query =
-      """select testbyte, testbool from test_table where teststring = '\\Unicode''s樂趣'"""
+      """select testbyte, testbool from test_table where teststring = '\\Unicode\'\'s樂趣'"""
     unloadedData = "1|t"
     // scalastyle:on
     val querySchema =
@@ -264,7 +264,7 @@ class RedshiftSourceSuite
       "UNLOAD \\('SELECT \"testbyte\", \"testbool\" " +
         "FROM \"PUBLIC\".\"test_table\" " +
         "WHERE \"testbool\" = true " +
-        "AND \"teststring\" = \\\\'Unicode\\\\'\\\\'s樂趣\\\\' " +
+        "AND \"teststring\" = ''Unicode\\\\\\\\\\\\\\\\'s樂趣'' " +
         "AND \"testdouble\" > 1000.0 " +
         "AND \"testdouble\" < 1.7976931348623157E308 " +
         "AND \"testfloat\" >= 1.0 " +
@@ -287,7 +287,7 @@ class RedshiftSourceSuite
     val filters: Array[Filter] = Array(
       EqualTo("testbool", true),
       // scalastyle:off
-      EqualTo("teststring", "Unicode's樂趣"),
+      EqualTo("teststring", "Unicode\\'s樂趣"),
       // scalastyle:on
       GreaterThan("testdouble", 1000.0),
       LessThan("testdouble", Double.MaxValue),

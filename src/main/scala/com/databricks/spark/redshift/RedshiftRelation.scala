@@ -186,7 +186,10 @@ private[redshift] case class RedshiftRelation(
     val query = {
       // Since the query passed to UNLOAD will be enclosed in single quotes, we need to escape
       // any backslashes and single quotes that appear in the query itself
-      val escapedTableNameOrSubqury = tableNameOrSubquery.replace("\\", "\\\\").replace("'", "\\'")
+      val escapedTableNameOrSubqury =
+        tableNameOrSubquery
+          .replaceAll("(?<!\\\\)'", "''")
+          .replace("\\", "\\\\\\\\")
       s"SELECT $columnList FROM $escapedTableNameOrSubqury $whereClause"
     }
     // We need to remove S3 credentials from the unload path URI because they will conflict with
