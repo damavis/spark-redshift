@@ -40,12 +40,12 @@ class FilterPushdownSuite extends FunSuite {
 
   test("buildWhereClause with string literals that contain Unicode characters") {
     // scalastyle:off
-    val whereClause = buildWhereClause(testSchema, Seq(EqualTo("test_string", "Unicode's樂趣")))
+    val whereClause = buildWhereClause(testSchema, Seq(EqualTo("test_string", "Unicode\\'s樂趣")))
     // Here, the apostrophe in the string needs to be replaced with two single quotes, '', but we
     // also need to escape those quotes with backslashes because this WHERE clause is going to
     // eventually be embedded inside of a single-quoted string that's embedded inside of a larger
     // Redshift query.
-    assert(whereClause === """WHERE "test_string" = \'Unicode\'\'s樂趣\'""")
+    assert(whereClause === """WHERE "test_string" = ''Unicode\\\\'s樂趣''""")
     // scalastyle:on
   }
 
@@ -66,7 +66,7 @@ class FilterPushdownSuite extends FunSuite {
     val expectedWhereClause =
       """
         |WHERE "test_bool" = true
-        |AND "test_string" = \'Unicode是樂趣\'
+        |AND "test_string" = ''Unicode是樂趣''
         |AND "test_double" > 1000.0
         |AND "test_double" < 1.7976931348623157E308
         |AND "test_float" >= 1.0
@@ -91,5 +91,7 @@ class FilterPushdownSuite extends FunSuite {
     StructField("test_timestamp", TimestampType)))
 
   /** A new filter subclasss which our pushdown logic does not know how to handle */
-  private case object NewFilter extends Filter
+  private case object NewFilter extends Filter {
+    override def references: Array[String] = Array()
+  }
 }
